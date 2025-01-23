@@ -4,39 +4,54 @@
 #include <sstream> 
 #include <locale>
 #include <codecvt>
-
-#define BUFFERSIZE 4096
+#include <vector>
 
 Executer::Executer(std::string fileName) : fileName(fileName) {}
 
 void Executer::noArgs() {
-    std::cout << "todo." << std::endl;
-}
-void Executer::countLines() {
-    std::ifstream file(fileName);
+    int lines = countLines();
+    int words = countWords();
+    int bytes = countBytes();
+    int chars = countChars();
 
-    if(!file.is_open()){
-        std::cerr << "Error: Unable to open file: " << fileName << std::endl;
-        return;
+    std::vector<int> results = {lines, words, bytes, chars};
+
+    for (const auto& result : results) {
+        std::cout << result << " ";
     }
-
-    std::string line;
-    int lineCount = 0;
-    while (std::getline(file,line)){
-        lineCount+=1;
-    }
-    file.close();
-
-    std::cout << lineCount <<  " " << fileName << std::endl;
-
+    std::cout << fileName << std::endl;
 }
 
-void Executer::countWords() {
+int Executer::countLines() {
     std::ifstream file(fileName);
 
     if (!file.is_open()) {
         std::cerr << "Error: Unable to open file: " << fileName << std::endl;
-        return;
+        return -1;
+    }
+    int lineCount = countLines(file);
+    file.close();
+    return lineCount; 
+}
+
+int Executer::countLines(std::istream& in) { //override 
+    std::string line;
+    int lineCount = 0;
+
+    while (std::getline(in, line)) {
+        lineCount++;
+    }
+
+    return lineCount;
+}
+
+
+int Executer::countWords() {
+    std::ifstream file(fileName);
+
+    if (!file.is_open()) {
+        std::cerr << "Error: Unable to open file: " << fileName << std::endl;
+        return -1;
     }
     int wordCount = 0;
     std::string line;
@@ -48,15 +63,16 @@ void Executer::countWords() {
         }
     }
     file.close();
-    std::cout << wordCount << " words in " << fileName << std::endl;
+    
+    return wordCount;
 }
 
-void Executer::countChars() {
+int Executer::countChars() {
     std::ifstream file(fileName, std::ios::binary);
 
     if (!file.is_open()) {
         std::cerr << "Error: Unable to open file: " << fileName << std::endl;
-        return;
+        return -1;
     }
 
     std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()); 
@@ -68,20 +84,22 @@ void Executer::countChars() {
 
     int charCount = wide_content.length();
 
-    std::cout << charCount << " " << fileName << std::endl;
+    return charCount;
 }
 
-void Executer::countBytes() {
+int Executer::countBytes() {
     std::ifstream file(fileName, std::ios::binary);
 
     if (!file.is_open()) {
         std::cerr << "Error: Unable to open file: " << fileName << std::endl;
-        return;
+        return -1;
     }
 
     std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
     file.close();
 
-    std::cout << content.length() << " " << fileName << std::endl;
+    int byteCount = content.length();
+
+    return byteCount;
 }

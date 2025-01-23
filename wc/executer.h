@@ -10,10 +10,12 @@ public:
     Executer(std::string fileName);
 
     void noArgs();
-    void countBytes();
-    void countWords();
-    void countLines();
-    void countChars();
+    int countBytes();
+    int countWords();
+    int countLines();
+    int countLines(std::istream& in);
+    int countChars();
+
 };
 
 #endif
