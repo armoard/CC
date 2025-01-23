@@ -13,6 +13,7 @@ public:
     void countBytes();
     void countWords();
     void countLines();
+    void countChars();
 };
 
 #endif

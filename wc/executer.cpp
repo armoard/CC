@@ -2,6 +2,8 @@
 #include <fstream>
 #include <iostream>
 #include <sstream> 
+#include <locale>
+#include <codecvt>
 
 #define BUFFERSIZE 4096
 
@@ -49,6 +51,25 @@ void Executer::countWords() {
     std::cout << wordCount << " words in " << fileName << std::endl;
 }
 
+void Executer::countChars() {
+    std::ifstream file(fileName, std::ios::binary);
+
+    if (!file.is_open()) {
+        std::cerr << "Error: Unable to open file: " << fileName << std::endl;
+        return;
+    }
+
+    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+    file.close();
+
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter; // object to convert from utf-8 to utf-16 
+    std::wstring wide_content = converter.from_bytes(content); 
+
+    int charCount = wide_content.length();
+
+    std::cout << charCount << " " << fileName << std::endl;
+}
 
 void Executer::countBytes(){
     std::ifstream file(fileName,std::ios::binary);

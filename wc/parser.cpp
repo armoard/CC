@@ -35,6 +35,10 @@ void Parser::parseAndExecute(){
         executer.countWords();
         return;
     }
+    else if (command == "-m"){
+        executer.countChars();
+        return;
+    }
 
  
 }
