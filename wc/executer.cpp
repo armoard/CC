@@ -59,7 +59,7 @@ void Executer::countChars() {
         return;
     }
 
-    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()); 
 
     file.close();
 
@@ -71,23 +71,17 @@ void Executer::countChars() {
     std::cout << charCount << " " << fileName << std::endl;
 }
 
-void Executer::countBytes(){
-    std::ifstream file(fileName,std::ios::binary);
+void Executer::countBytes() {
+    std::ifstream file(fileName, std::ios::binary);
 
-    if (!file.is_open()) {        
+    if (!file.is_open()) {
         std::cerr << "Error: Unable to open file: " << fileName << std::endl;
         return;
     }
 
-    char buffer[BUFFERSIZE];
-    int byteCount = 0;
-    
-    while(file.read(buffer,BUFFERSIZE)){
-        byteCount+=file.gcount();
-    }
-    byteCount += file.gcount();
+    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
     file.close();
-    std::cout << byteCount << " " << fileName << std::endl;
 
+    std::cout << content.length() << " " << fileName << std::endl;
 }
