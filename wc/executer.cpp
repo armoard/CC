@@ -1,10 +1,11 @@
 #include "executer.h"
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <sstream> 
+
 #define BUFFERSIZE 4096
 
 Executer::Executer(std::string fileName) : fileName(fileName) {}
-
 
 void Executer::noArgs() {
     std::cout << "todo." << std::endl;
@@ -27,9 +28,27 @@ void Executer::countLines() {
     std::cout << lineCount <<  " " << fileName << std::endl;
 
 }
+
 void Executer::countWords() {
-    std::cout << "todo." << std::endl;
+    std::ifstream file(fileName);
+
+    if (!file.is_open()) {
+        std::cerr << "Error: Unable to open file: " << fileName << std::endl;
+        return;
+    }
+    int wordCount = 0;
+    std::string line;
+    while (std::getline(file, line)){
+        std::stringstream ss(line);
+        std::string word;
+        while (ss >> word) {  
+            wordCount++;  
+        }
+    }
+    file.close();
+    std::cout << wordCount << " words in " << fileName << std::endl;
 }
+
 
 void Executer::countBytes(){
     std::ifstream file(fileName,std::ios::binary);

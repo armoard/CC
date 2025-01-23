@@ -31,6 +31,10 @@ void Parser::parseAndExecute(){
         executer.countLines();
         return;
     }
+    else if (command == "-w"){
+        executer.countWords();
+        return;
+    }
 
  
 }
