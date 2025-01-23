@@ -11,10 +11,10 @@ Executer::Executer(std::string fileName) : fileName(fileName) {}
 void Executer::noArgs() {
     int lines = countLines();
     int words = countWords();
-    int bytes = countBytes();
     int chars = countChars();
-
-    std::vector<int> results = {lines, words, bytes, chars};
+    int bytes = countBytes();
+    
+    std::vector<int> results = {lines, words, chars, bytes};
 
     for (const auto& result : results) {
         std::cout << result << " ";
