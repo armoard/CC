@@ -28,7 +28,8 @@ void Parser::parseAndExecute(){
     }
     else if (command == "-l")
     {
-        //todo
+        executer.countLines();
+        return;
     }
 
  

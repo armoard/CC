@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #define BUFFERSIZE 4096
+
 Executer::Executer(std::string fileName) : fileName(fileName) {}
 
 
@@ -9,7 +10,22 @@ void Executer::noArgs() {
     std::cout << "todo." << std::endl;
 }
 void Executer::countLines() {
-    std::cout << "todo." << std::endl;
+    std::ifstream file(fileName);
+
+    if(!file.is_open()){
+        std::cerr << "Error: Unable to open file: " << fileName << std::endl;
+        return;
+    }
+
+    std::string line;
+    int lineCount = 0;
+    while (std::getline(file,line)){
+        lineCount+=1;
+    }
+    file.close();
+
+    std::cout << lineCount <<  " " << fileName << std::endl;
+
 }
 void Executer::countWords() {
     std::cout << "todo." << std::endl;
