@@ -49,14 +49,14 @@ public:
         }
 
         for (wchar_t letter : wide_content) {
-            freqCount[std::wstring(1, letter)]++;
+            freqCount[letter]++;
         }
     }
 
 
     void heapify() {
         for (const auto& entry : freqCount) {
-            minHeap.push(new Node(entry.first[0], entry.second));
+            minHeap.push(new Node(entry.first, entry.second));
         }
     } //first push all leafs into heap
 
@@ -77,7 +77,7 @@ public:
 
 private:
     std::string fileName;
-    std::unordered_map<std::wstring, int> freqCount;
+    std::unordered_map<wchar_t, int> freqCount;
     std::priority_queue<Node*, std::vector<Node*>, Node::Compare> minHeap;
     Node* root = nullptr;
     void deleteTree(Node* node) {
