@@ -106,7 +106,7 @@ public:
         uint32_t bitCount = bitString.size();
         outputFile.write(reinterpret_cast<const char*>(&bitCount), sizeof(bitCount));
     
-        
+        // make the length a multiple of 8 for conversion to bytes
         while (bitString.size() % 8 != 0) {
             bitString += "0";   
         }
@@ -127,12 +127,6 @@ public:
             }
         }
         
-        // fill out if there is left out bits
-        if (bitsWritten > 0) {
-            buffer <<= (8 - bitsWritten);  
-            outputFile.put(buffer);
-        }
-    
         inputFile.close();
         outputFile.close();
     }
