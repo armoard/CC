@@ -53,7 +53,7 @@ public:
         std::priority_queue<Node*, std::vector<Node*>, Node::Compare> minHeap;
 
         for (const auto& entry : freqCount) {
-            minHeap.push(new Node(entry.first, entry.second));
+            minHeap.push(new Node(entry.first, entry.second)); //push leafs
         }
 
         while (minHeap.size() > 1) {
@@ -104,7 +104,7 @@ public:
         
         // write in file the exact number of bits before compressing
         uint32_t bitCount = bitString.size();
-        outputFile.write(reinterpret_cast<const char*>(&bitCount), sizeof(bitCount));
+        outputFile.write((const char*)&bitCount, sizeof(bitCount));
     
         // make the length a multiple of 8 for conversion to bytes
         while (bitString.size() % 8 != 0) {
@@ -119,9 +119,8 @@ public:
             buffer <<= 1;
             if (bit == '1') buffer |= 1;
             bitsWritten++;
-    
             if (bitsWritten == 8) {
-                outputFile.put(buffer);  
+                outputFile.put(buffer);  //writes only 1 byte
                 buffer = 0;  
                 bitsWritten = 0;
             }
