@@ -3,8 +3,8 @@
 
 int main(int argc, char* argv[]){
     std::string fileName = argv[1];
-    Compressor counter(fileName); 
-    counter.countFreq();
-    counter.heapify();
+    std::string outputName = argv[2];
+    Compressor compressor(fileName);
+    compressor.compress(outputName);
     return 0;
 }

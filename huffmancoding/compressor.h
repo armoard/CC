@@ -1,24 +1,25 @@
-#include <unordered_map>
+#include <map>
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <queue>
 #include <vector>
+#include <bitset>
 #include <locale>
 #include <codecvt>
 
 struct Node {
     wchar_t character;  
-    int frequency;      
-    Node* left;         
-    Node* right;        
+    int frequency;
+    Node* left;
+    Node* right;
 
-    Node(wchar_t c, int f) : character(c), frequency(f), left(nullptr), right(nullptr) {}
+    Node(wchar_t ch, int f) : character(ch), frequency(f), left(nullptr), right(nullptr) {}
     Node(int f, Node* l, Node* r) : character(L'\0'), frequency(f), left(l), right(r) {}
 
     struct Compare {
         bool operator()(const Node* a, const Node* b) {
-            return a->frequency > b->frequency;  
+            return a->frequency > b->frequency;
         }
     };
 
@@ -29,39 +30,33 @@ struct Node {
 
 class Compressor {
 public:
-    Compressor(std::string fileName) {
-        this->fileName = fileName;
-    }
+    explicit Compressor(std::string fileName) : fileName(std::move(fileName)) {}
+
     void countFreq() {
-        std::ifstream file(fileName, std::ios::binary);
+        std::wifstream file(fileName, std::ios::binary);
         if (!file) {
             std::cerr << "Error opening file: " << fileName << std::endl;
             return;
         }
-        std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+        file.imbue(std::locale(file.getloc(), new std::codecvt_utf8<wchar_t>));
+
+        wchar_t ch;
+        while (file.get(ch)) {
+            freqCount[ch]++;
+        }
+
         file.close();
-
-        std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-        std::wstring wide_content = converter.from_bytes(content);
-
-        if (!wide_content.empty() && wide_content[0] == 0xFEFF) {
-            wide_content.erase(0, 1);
-        }
-
-        for (wchar_t letter : wide_content) {
-            freqCount[letter]++;
-        }
     }
 
+    void buildTree() {
+        std::priority_queue<Node*, std::vector<Node*>, Node::Compare> minHeap;
 
-    void heapify() {
         for (const auto& entry : freqCount) {
             minHeap.push(new Node(entry.first, entry.second));
         }
-    } //first push all leafs into heap
 
-    void makeTree(){
-        while (minHeap.size() > 1){
+        while (minHeap.size() > 1) {
             Node* left = minHeap.top(); minHeap.pop();
             Node* right = minHeap.top(); minHeap.pop();
 
@@ -69,7 +64,85 @@ public:
             minHeap.push(parent);
         }
         root = minHeap.top();
-    } 
+    }
+
+    void generateCodes(Node* node, const std::string& code) {
+        if (!node) return;
+        if (node->isLeaf()) {
+            huffmanCodes[node->character] = code;
+        }
+        generateCodes(node->left, code + "0");
+        generateCodes(node->right, code + "1");
+    }
+
+    void writeHuffmanTable(std::ofstream& outFile) {
+        outFile << huffmanCodes.size() << "\n"; //unique chars
+        for (const auto& entry : huffmanCodes) {
+            outFile << static_cast<int>(entry.first) << " " << entry.second << "\n";  
+        }
+    }
+
+    void encodeFile(const std::string& outputFileName) {
+        std::wifstream inputFile(fileName, std::ios::binary);
+        std::ofstream outputFile(outputFileName, std::ios::binary);
+    
+        if (!inputFile || !outputFile) {
+            return;
+        }
+    
+        inputFile.imbue(std::locale(inputFile.getloc(), new std::codecvt_utf8<wchar_t>));
+        
+
+        writeHuffmanTable(outputFile);
+    
+        std::string bitString;
+        wchar_t ch;
+    
+        while (inputFile.get(ch)) {
+            bitString += huffmanCodes[ch];  
+        }
+        
+        // write in file the exact number of bits before compressing
+        uint32_t bitCount = bitString.size();
+        outputFile.write(reinterpret_cast<const char*>(&bitCount), sizeof(bitCount));
+    
+        
+        while (bitString.size() % 8 != 0) {
+            bitString += "0";   
+        }
+    
+        char buffer = 0;    
+        int bitsWritten = 0;
+
+        // start making bytes from bits 
+        for (char bit : bitString) {
+            buffer <<= 1;
+            if (bit == '1') buffer |= 1;
+            bitsWritten++;
+    
+            if (bitsWritten == 8) {
+                outputFile.put(buffer);  
+                buffer = 0;  
+                bitsWritten = 0;
+            }
+        }
+        
+        // fill out if there is left out bits
+        if (bitsWritten > 0) {
+            buffer <<= (8 - bitsWritten);  
+            outputFile.put(buffer);
+        }
+    
+        inputFile.close();
+        outputFile.close();
+    }
+
+    void compress(const std::string& outputFileName) {
+        countFreq();
+        buildTree();
+        generateCodes(root, "");
+        encodeFile(outputFileName);
+    }
 
     ~Compressor() {
         deleteTree(root);
@@ -77,9 +150,10 @@ public:
 
 private:
     std::string fileName;
-    std::unordered_map<wchar_t, int> freqCount;
-    std::priority_queue<Node*, std::vector<Node*>, Node::Compare> minHeap;
+    std::map<wchar_t, int> freqCount;
+    std::map<wchar_t, std::string> huffmanCodes;
     Node* root = nullptr;
+
     void deleteTree(Node* node) {
         if (node) {
             deleteTree(node->left);
