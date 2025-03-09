@@ -7,26 +7,7 @@
 #include <bitset>
 #include <locale>
 #include <codecvt>
-
-struct Node {
-    wchar_t character;  
-    int frequency;
-    Node* left;
-    Node* right;
-
-    Node(wchar_t ch, int f) : character(ch), frequency(f), left(nullptr), right(nullptr) {}
-    Node(int f, Node* l, Node* r) : character(L'\0'), frequency(f), left(l), right(r) {}
-
-    struct Compare {
-        bool operator()(const Node* a, const Node* b) {
-            return a->frequency > b->frequency;
-        }
-    };
-
-    bool isLeaf() {
-        return left == nullptr && right == nullptr;
-    }
-};
+#include "common.h"
 
 class Compressor {
 public:
@@ -103,8 +84,8 @@ public:
         }
         
         // write in file the exact number of bits before compressing
-        uint32_t bitCount = bitString.size();
-        outputFile.write((const char*)&bitCount, sizeof(bitCount));
+        uint64_t bitCount = bitString.size();  
+        outputFile << bitCount << "\n";        
     
         // make the length a multiple of 8 for conversion to bytes
         while (bitString.size() % 8 != 0) {
@@ -147,11 +128,5 @@ private:
     std::map<wchar_t, std::string> huffmanCodes;
     Node* root = nullptr;
 
-    void deleteTree(Node* node) {
-        if (node) {
-            deleteTree(node->left);
-            deleteTree(node->right);
-            delete node;
-        }
-    }
+
 };
