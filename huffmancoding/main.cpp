@@ -9,14 +9,14 @@ int main(int argc, char* argv[]) {
 
     std::string fileName = argv[1];
     std::string compressedFile = "compressed.huff";
-    std::string decompressedFile = "decompressed.txt";
+    
 
     Compressor compressor(fileName);
     compressor.compress(compressedFile);
 
 
     Decompressor decompressor(compressedFile);
-    decompressor.decompress();  // 🔹 Se eliminó el argumento incorrecto
+    decompressor.decompress();  
 
     
     return 0;
