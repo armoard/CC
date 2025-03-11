@@ -15,7 +15,7 @@ public:
     int countLines();
     int countLines(std::istream& in);
     int countChars();
-
+    std::string getFileName() const { return fileName; }
 };
 
 #endif

@@ -1,5 +1,6 @@
 #ifndef __COMMON_H
 #define __COMMON_H
+#include <stdint.h>
 struct Node {
     wchar_t character;  
     int frequency;

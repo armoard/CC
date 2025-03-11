@@ -1,10 +1,13 @@
 #include "executer.h"
 #include <fstream>
 #include <iostream>
-#include <sstream> 
-#include <locale>
-#include <codecvt>
+#include <iterator>
+#include <sstream>
 #include <vector>
+#include <algorithm>
+#include <string>
+#include <codecvt>
+#include <locale>
 
 Executer::Executer(std::string fileName) : fileName(fileName) {}
 
@@ -14,92 +17,83 @@ void Executer::noArgs() {
     int chars = countChars();
     int bytes = countBytes();
     
-    std::vector<int> results = {lines, words, chars, bytes};
-
-    for (const auto& result : results) {
-        std::cout << result << " ";
-    }
-    std::cout << fileName << std::endl;
+    std::cout << lines << " " << words << " " << chars << " " << bytes;
+    if (!fileName.empty()) std::cout << " " << fileName;
+    std::cout << std::endl;
 }
 
 int Executer::countLines() {
-    std::ifstream file(fileName);
+    if (fileName.empty()) {
+        return countLines(std::cin);  
+    }
 
+    std::ifstream file(fileName);
     if (!file.is_open()) {
         std::cerr << "Error: Unable to open file: " << fileName << std::endl;
         return -1;
     }
-    int lineCount = countLines(file);
-    file.close();
-    return lineCount; 
+    return countLines(file);
 }
 
-int Executer::countLines(std::istream& in) { //override 
-    std::string line;
-    int lineCount = 0;
-
-    while (std::getline(in, line)) {
-        lineCount++;
-    }
-
-    return lineCount;
+int Executer::countLines(std::istream& in) { 
+    return std::count(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>(), '\n');
 }
-
 
 int Executer::countWords() {
-    std::ifstream file(fileName);
+    std::istream* input;
+    std::ifstream file;
 
-    if (!file.is_open()) {
-        std::cerr << "Error: Unable to open file: " << fileName << std::endl;
-        return -1;
-    }
-    int wordCount = 0;
-    std::string line;
-    while (std::getline(file, line)){
-        std::stringstream ss(line);
-        std::string word;
-        while (ss >> word) {  
-            wordCount++;  
+    if (!fileName.empty()) {
+        file.open(fileName);
+        if (!file.is_open()) {
+            std::cerr << "Error: Unable to open file: " << fileName << std::endl;
+            return -1;
         }
+        input = &file;
+    } else {
+        input = &std::cin;
     }
-    file.close();
-    
-    return wordCount;
+
+    return std::distance(std::istream_iterator<std::string>(*input), std::istream_iterator<std::string>());
 }
-
 int Executer::countChars() {
-    std::ifstream file(fileName, std::ios::binary);
+    std::istream* input;
+    std::ifstream file;
 
-    if (!file.is_open()) {
-        std::cerr << "Error: Unable to open file: " << fileName << std::endl;
-        return -1;
+    if (!fileName.empty()) {
+        file.open(fileName, std::ios::binary);
+        if (!file.is_open()) {
+            std::cerr << "Error: Unable to open file: " << fileName << std::endl;
+            return -1;
+        }
+        input = &file;
+    } else {
+        input = &std::cin;
     }
 
-    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()); 
 
-    file.close();
+    std::string content((std::istreambuf_iterator<char>(*input)), std::istreambuf_iterator<char>());
 
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter; // object to convert from utf-8 to utf-16 
-    std::wstring wide_content = converter.from_bytes(content); 
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    std::wstring wide_content = converter.from_bytes(content);
 
-    int charCount = wide_content.length();
-
-    return charCount;
+    return wide_content.length();  
 }
 
 int Executer::countBytes() {
-    std::ifstream file(fileName, std::ios::binary);
+    std::istream* input;
+    std::ifstream file;
 
-    if (!file.is_open()) {
-        std::cerr << "Error: Unable to open file: " << fileName << std::endl;
-        return -1;
+    if (!fileName.empty()) {
+        file.open(fileName, std::ios::binary);
+        if (!file.is_open()) {
+            std::cerr << "Error: Unable to open file: " << fileName << std::endl;
+            return -1;
+        }
+        input = &file;
+    } else {
+        input = &std::cin;
     }
 
-    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-
-    file.close();
-
-    int byteCount = content.length();
-
-    return byteCount;
+    return std::distance(std::istreambuf_iterator<char>(*input), std::istreambuf_iterator<char>());
 }
