@@ -1,0 +1,128 @@
+# Description of Socket Functions in C++
+
+## 1. socket()
+**Function:** Creates a socket for network communication.
+**Syntax:** 
+```cpp
+int socket(int domain, int type, int protocol);
+```
+**Parameters:**
+- `domain`: Specifies the address family. (`AF_INET` for IPv4, `AF_INET6` for IPv6).
+- `type`: Type of socket (`SOCK_STREAM` for TCP, `SOCK_DGRAM` for UDP).
+- `protocol`: Usually `0`, automatically selects the appropriate protocol.
+**Returns:** A socket descriptor (integer) or `-1` on error.
+
+---
+
+## 2. bind()
+**Function:** Associates a socket with a specific address and port on the server.
+**Syntax:**
+```cpp
+int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+```
+**Parameters:**
+- `sockfd`: Socket descriptor created with `socket()`.
+- `addr`: Server address and port (structure `sockaddr_in`).
+- `addrlen`: Size of the `addr` structure.
+**Returns:** `0` on success, `-1` on error.
+
+---
+
+## 3. listen()
+**Function:** Puts the socket in listening mode to accept incoming connections.
+**Syntax:**
+```cpp
+int listen(int sockfd, int backlog);
+```
+**Parameters:**
+- `sockfd`: Socket descriptor.
+- `backlog`: Maximum number of pending connections.
+**Returns:** `0` on success, `-1` on error.
+
+---
+
+## 4. accept()
+**Function:** Accepts an incoming connection on the server.
+**Syntax:**
+```cpp
+int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+```
+**Parameters:**
+- `sockfd`: Socket descriptor in listening mode.
+- `addr`: Pointer to a `sockaddr_in` structure that will be filled with the client's address.
+- `addrlen`: Size of the `addr` structure.
+**Returns:** A new socket descriptor for communication with the client or `-1` on error.
+
+---
+
+## 5. connect()
+**Function:** Connects a client to a server.
+**Syntax:**
+```cpp
+int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+```
+**Parameters:**
+- `sockfd`: Client socket descriptor.
+- `addr`: Server address and port to connect to.
+- `addrlen`: Size of the `addr` structure.
+**Returns:** `0` on success, `-1` on error.
+
+---
+
+## 6. send()
+**Function:** Sends data through a socket.
+**Syntax:**
+```cpp
+ssize_t send(int sockfd, const void *buf, size_t len, int flags);
+```
+**Parameters:**
+- `sockfd`: Socket descriptor.
+- `buf`: Pointer to the data to be sent.
+- `len`: Length of the data to be sent.
+- `flags`: Options (usually `0`).
+**Returns:** Number of bytes sent or `-1` on error.
+
+---
+
+## 7. recv()
+**Function:** Receives data from a socket.
+**Syntax:**
+```cpp
+ssize_t recv(int sockfd, void *buf, size_t len, int flags);
+```
+**Parameters:**
+- `sockfd`: Socket descriptor.
+- `buf`: Buffer where received data will be stored.
+- `len`: Size of the buffer.
+- `flags`: Options (usually `0`).
+**Returns:** Number of bytes received or `-1` on error.
+
+---
+
+## 8. close()
+**Function:** Closes a socket and releases associated resources.
+**Syntax:**
+```cpp
+int close(int sockfd);
+```
+**Parameters:**
+- `sockfd`: Descriptor of the socket to be closed.
+**Returns:** `0` on success, `-1` on error.
+
+---
+
+## Summary of a TCP Server Workflow:
+1. **Create a socket:** `socket()`
+2. **Bind to an address:** `bind()`
+3. **Start listening:** `listen()`
+4. **Accept connections:** `accept()`
+5. **Receive data:** `recv()`
+6. **Send response:** `send()`
+7. **Close the connection:** `close()`
+
+## Summary of a TCP Client Workflow:
+1. **Create a socket:** `socket()`
+2. **Connect to the server:** `connect()`
+3. **Send data:** `send()`
+4. **Receive data:** `recv()`
+5. **Close the connection:** `close()`
