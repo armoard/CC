@@ -9,12 +9,13 @@
 #include "respparser.h"
 #include "commandprocessor.h"
 
+
 class server{
     private:
         int port;
         int server_fd;
-        std::shared_ptr<std::unordered_map<std::string, RESPValue>> store =
-        std::make_shared<std::unordered_map<std::string, RESPValue>>();
+        std::shared_ptr<std::unordered_map<std::string, Entry>> store =
+        std::make_shared<std::unordered_map<std::string, Entry>>();
         std::vector<std::thread> threads;
         std::mutex store_mutex;
         void handleClient(int client_fd){
