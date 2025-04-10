@@ -93,4 +93,5 @@ void finalStep(const std::string& pattern, std::ifstream& input, bool ignoreCase
 
 int main (int argc, char* argv[]){
     // only need to parse args here and call respective func
+    // this was a quick one 
 }
